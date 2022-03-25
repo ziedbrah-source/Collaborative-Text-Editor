@@ -26,7 +26,7 @@ public class Notepad extends JFrame {
 
         label1.setOpaque(true);
         label1.setBackground(Color.RED);
-        label1.setText("here we go biatch");
+        label1.setText("ID WILL BE HERE");
         layeredPane.setBounds(0,0,800,800);
         layeredPane.add(label1, Integer.valueOf(0));
         textArea.add(layeredPane);
