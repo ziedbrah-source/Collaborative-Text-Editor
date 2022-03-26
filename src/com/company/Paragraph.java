@@ -1,14 +1,40 @@
 package com.company;
 
-public class Paragraph {
+import java.io.Serializable;
 
-    private String Text="";
-    private String firstLimit=null;
-    private String secondLimit=null;
+public class Paragraph implements Serializable {
+
+    private int firstLimit;
+    private int secondLimit;
     private String ownerId=null;
 
-    Paragraph(String id,String firstLimit){
-
+    Paragraph(String ownerId,int firstLimit,int secondLimit){
+        this.firstLimit=firstLimit;
+        this.secondLimit=secondLimit;
+        this.ownerId=ownerId;
     }
 
+    public int getFirstLimit() {
+        return firstLimit;
+    }
+
+    public void setFirstLimit(int firstLimit) {
+        this.firstLimit = firstLimit;
+    }
+
+    public int getSecondLimit() {
+        return secondLimit;
+    }
+
+    public void setSecondLimit(int secondLimit) {
+        this.secondLimit = secondLimit;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
 }

@@ -18,6 +18,9 @@ public class Main {
             num.setVisible(true);
             num.receiveInNotepad();
         }
+        for (Notepad num : notepadArrayList) {
+            num.sendPos();
+        }
 
     }
 }

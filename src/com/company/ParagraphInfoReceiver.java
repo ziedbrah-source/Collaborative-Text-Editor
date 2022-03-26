@@ -1,26 +1,25 @@
 package com.company;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
-import javax.swing.*;
-import java.awt.*;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 
-//public class Receiver extends Thread{
-public class MsgReceiver {
-    private static final String EXCHANGE_NAME_MESSAGES = "Messages";
+public class ParagraphInfoReceiver {
+    private static final String EXCHANGE_NAME_PARAGRAPHS = "Paragraphs";
+    private String uniqueID=null;
+    HashMap<String, Paragraph> paragraphMap=null;
 
-    JTextArea textArea=null;
-    String id=null;
+    ParagraphInfoReceiver(String uniqueID, HashMap<String, Paragraph> paragraphMap){
+        this.uniqueID=uniqueID;
+        this.paragraphMap=paragraphMap;
 
-    MsgReceiver(JTextArea textArea, String id){
-        this.textArea=textArea;
-        this.id=id;
     }
-    public void receiveMsg (HashMap<String, JLabel> map) {
+    public void receiveParagraph () {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = null;
@@ -36,7 +35,7 @@ public class MsgReceiver {
             e.printStackTrace();
         }
         try {
-            channel.exchangeDeclare(EXCHANGE_NAME_MESSAGES, "fanout");
+            channel.exchangeDeclare(EXCHANGE_NAME_PARAGRAPHS, "fanout");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,7 +46,7 @@ public class MsgReceiver {
             e.printStackTrace();
         }
         try {
-            channel.queueBind(queueName, EXCHANGE_NAME_MESSAGES, "");
+            channel.queueBind(queueName, EXCHANGE_NAME_PARAGRAPHS, "");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -55,14 +54,19 @@ public class MsgReceiver {
         DeliverCallback deliverCallback = (consumerTag , delivery) -> {
             byte[] bytearray= delivery.getBody();
             try {
-                Obj o=(Obj) Utils.deseriablize(bytearray);
-                if(!o.getId().equals(id)){
-                    JLabel j=map.get(o.getId());
+                Paragraph p=(Paragraph) Utils.deseriablize(bytearray);
+                if(!p.getOwnerId().equals(uniqueID)){
+                    System.out.println(" [x] received '" + p.getOwnerId() + "'");
+                    System.out.println(" [x] received '" + p.getFirstLimit() + "'");
+                    System.out.println(" [x] received '" + p.getSecondLimit() + "'");
 
-                    int startOffset = textArea.viewToModel(new Point(j.getX(), j.getY()));
-                    System.out.println("Start Offset : " + startOffset);
-                    System.out.println(" [x] received '" + String.valueOf(o.getMsg() + "'"));
-                    textArea.insert(String.valueOf(o.getMsg()),startOffset);
+                    if(paragraphMap.containsKey(p.getOwnerId())){
+                        p=paragraphMap.get(p.getOwnerId());
+                        p.setFirstLimit(p.getFirstLimit());
+                        p.setSecondLimit(p.getSecondLimit());
+                    }else{
+                        paragraphMap.put(uniqueID,p);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -79,6 +83,5 @@ public class MsgReceiver {
         }
 
     }
-
 
 }
