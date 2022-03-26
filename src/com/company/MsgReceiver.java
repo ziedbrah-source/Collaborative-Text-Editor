@@ -10,15 +10,17 @@ import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
-public class Receiver extends Thread{
-    private static final String EXCHANGE_NAME = "Messages";
+//public class Receiver extends Thread{
+public class MsgReceiver {
+    private static final String EXCHANGE_NAME_MESSAGES = "Messages";
+
     JTextArea textArea=null;
     String id=null;
-    Receiver(JTextArea textArea,String id){
+    MsgReceiver(JTextArea textArea, String id){
         this.textArea=textArea;
         this.id=id;
     }
-    public void run () {
+    public void receiveMsg () {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = null;
@@ -34,7 +36,7 @@ public class Receiver extends Thread{
             e.printStackTrace();
         }
         try {
-            channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+            channel.exchangeDeclare(EXCHANGE_NAME_MESSAGES, "fanout");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,7 +47,7 @@ public class Receiver extends Thread{
             e.printStackTrace();
         }
         try {
-            channel.queueBind(queueName, EXCHANGE_NAME, "");
+            channel.queueBind(queueName, EXCHANGE_NAME_MESSAGES, "");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,7 +55,7 @@ public class Receiver extends Thread{
         DeliverCallback deliverCallback = (consumerTag , delivery) -> {
             byte[] bytearray= delivery.getBody();
             try {
-                Obj o=(Obj) deseriablize(bytearray);
+                Obj o=(Obj) Utils.deseriablize(bytearray);
                 if(!o.getId().equals(id)){
 
                     System.out.println(" [x] received '" + String.valueOf(o.getMsg() + "'"));
@@ -74,9 +76,6 @@ public class Receiver extends Thread{
         }
 
     }
-    public Object deseriablize (byte[] byteArray) throws Exception {
-        ByteArrayInputStream in = new ByteArrayInputStream(byteArray);
-        ObjectInputStream is = new ObjectInputStream(in);
-        return is.readObject();
-    }
+
+
 }
