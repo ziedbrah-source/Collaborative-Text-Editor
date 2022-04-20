@@ -1,25 +1,35 @@
 package com.company;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 public class Main {
-    static ArrayList<Notepad> notepadArrayList = new ArrayList<Notepad>();
-    public static void main(String[] args)throws Exception {
-	// write your code here
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    static ArrayList <Window> sendWindows = new ArrayList<Window>();
+    public static void main(String[] args) throws IOException, TimeoutException, BadLocationException {
 
-        //.setVisible(true)
-        for(int i=0;i<2;i++){
-            notepadArrayList.add(new Notepad());
+        int n = 4;
+        for (int i =1 ;i<=n;i++)
+        {
+            String queueName="file"+i;
+            sendWindows.add(i-1,new Window(queueName));
         }
-
-        for (Notepad num : notepadArrayList) {
-            num.setVisible(true);
-            num.receiveInNotepad();
+        for (int i =1 ;i<=n;i++)
+        {
+            String queueName="file"+i;
+            sendWindows.get(i-1).afficher(queueName);
         }
-        for (Notepad num : notepadArrayList) {
-            num.sendPos();
+        for (int i =1 ;i<=n;i++)
+        {
+            String queueName="file"+i;
+            sendWindows.get(i-1).receiveInNotepad();
+        }
+        for (int i =1 ;i<=n;i++)
+        {
+            String queueName="file"+i;
+            sendWindows.get(i-1).sendPos();
         }
 
     }

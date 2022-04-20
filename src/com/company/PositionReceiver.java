@@ -11,10 +11,10 @@ import java.util.concurrent.TimeoutException;
 public class PositionReceiver {
     private static final String EXCHANGE_NAME_POSITIONS = "Positions";
     private String uniqueId=null;
-    private Notepad notepad=null;
-    PositionReceiver(Notepad notepad){
+    private Window window=null;
+    PositionReceiver(Window notepad){
         this.uniqueId=notepad.getUniqueID();
-        this.notepad=notepad;
+        this.window=notepad;
 
     }
     public void receivePosition() {
@@ -56,7 +56,7 @@ public class PositionReceiver {
                 if(!pos.getId().equals(uniqueId)){
 
                     System.out.println(" [x] received '" + pos.getId() + "'");
-                    notepad.DrawRectangleInPosition(pos);
+                    window.DrawRectangleInPosition(pos);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

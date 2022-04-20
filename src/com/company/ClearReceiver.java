@@ -6,20 +6,18 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 
-public class ParagraphInfoReceiver {
-    private static final String EXCHANGE_NAME_PARAGRAPHS = "Paragraphs";
-    private String uniqueID=null;
-    HashMap<String, Paragraph> paragraphMap=null;
-
-    ParagraphInfoReceiver(String uniqueID, HashMap<String, Paragraph> paragraphMap){
-        this.uniqueID=uniqueID;
-        this.paragraphMap=paragraphMap;
+public class ClearReceiver {
+    private static final String EXCHANGE_NAME_CLEAR = "Clear";
+    private String uniqueId=null;
+    private Window window=null;
+    ClearReceiver(Window notepad){
+        this.uniqueId=notepad.getUniqueID();
+        this.window=notepad;
 
     }
-    public void receiveParagraph () {
+    public void receiveClear() {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = null;
@@ -35,7 +33,7 @@ public class ParagraphInfoReceiver {
             e.printStackTrace();
         }
         try {
-            channel.exchangeDeclare(EXCHANGE_NAME_PARAGRAPHS, "fanout");
+            channel.exchangeDeclare(EXCHANGE_NAME_CLEAR, "fanout");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -46,7 +44,7 @@ public class ParagraphInfoReceiver {
             e.printStackTrace();
         }
         try {
-            channel.queueBind(queueName, EXCHANGE_NAME_PARAGRAPHS, "");
+            channel.queueBind(queueName, EXCHANGE_NAME_CLEAR, "");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,19 +52,11 @@ public class ParagraphInfoReceiver {
         DeliverCallback deliverCallback = (consumerTag , delivery) -> {
             byte[] bytearray= delivery.getBody();
             try {
-                Paragraph p=(Paragraph) Utils.deseriablize(bytearray);
-                if(!p.getOwnerId().equals(uniqueID)){
-                    System.out.println(" [x] received '" + p.getOwnerId() + "'");
-                    System.out.println(" [x] received '" + p.getFirstLimit() + "'");
-                    System.out.println(" [x] received '" + p.getSecondLimit() + "'");
+                Clear pos=(Clear) Utils.deseriablize(bytearray);
+                if(!pos.getId().equals(uniqueId)){
 
-                    if(paragraphMap.containsKey(p.getOwnerId())){
-                        p=paragraphMap.get(p.getOwnerId());
-                        p.setFirstLimit(p.getFirstLimit());
-                        p.setSecondLimit(p.getSecondLimit());
-                    }else{
-                        paragraphMap.put(uniqueID,p);
-                    }
+                    window.getJt().setEnabled(true);
+                    window.getJt().getDocument().addDocumentListener(window);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -83,5 +73,4 @@ public class ParagraphInfoReceiver {
         }
 
     }
-
 }
