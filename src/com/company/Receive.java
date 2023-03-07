@@ -37,6 +37,7 @@ public class Receive {
             String senderQueue = ranges.get("queue").toString();
             //  System.out.println("sender Queue: "+senderQueue);
             if(queueName.equals(senderQueue))
+
             {
                 return;
             }
